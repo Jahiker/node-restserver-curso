@@ -27,18 +27,20 @@ let verificaToken = (req, res, netx) => {
 //VERIFICAR ADMINROLE
 //=============================
 let verificaAdminRole = (req, res, netx) => {
-    let usuario = req.usuario;
-    if (req.usuario.role != 'ADMIN_ROLE') {
-        return res.status(401).json({
-            ok: false,
-            err: {
-                message: 'El Usuario No es Administrador'
-            }
-        });
+        let usuario = req.usuario;
+        if (req.usuario.role != 'ADMIN_ROLE') {
+            return res.status(401).json({
+                ok: false,
+                err: {
+                    message: 'El Usuario No es Administrador'
+                }
+            });
+        }
+        netx();
     }
-    netx();
-}
-
+    //=======================================================
+    //verificacion a manera de prueba no incluida en el curso
+    //=======================================================
 let verificaCategoria = (req, res, netx) => {
     let categoria = req.categoria;
     if (!req.categoria.descripcion) {
@@ -52,8 +54,28 @@ let verificaCategoria = (req, res, netx) => {
     netx();
 }
 
+//====================================
+//VERIFICAR TOKEN POR URL PARA IMAGEN
+//====================================
+let verificaTokenImg = (req, res, netx) => {
+    let token = req.query.token;
+    jwt.verify(token, process.env.SEED, (err, decoded) => {
+        if (err) {
+            return res.status(401).json({
+                ok: false,
+                err: {
+                    message: 'Token No Valido'
+                }
+            });
+        }
+        req.usuario = decoded.usuario;
+        netx();
+    });
+}
+
 module.exports = {
     verificaToken,
     verificaAdminRole,
+    verificaTokenImg,
     verificaCategoria
 }
